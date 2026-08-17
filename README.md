@@ -13,9 +13,9 @@ for defenders.
 
 | Project | What it demonstrates | Write-up |
 |---|---|---|
-| [Morse Code Packet Transceiver](projects/morse-code-packet-transceiver/) | Data smuggled one symbol per packet through ICMP, TCP or UDP payloads | [Post](https://failclosed.com/2026-08-16-morse-code-packet-transceiver/) |
-| [RC4 Encryptor and Base64 Encoder](projects/rc4-encryptor-base64-encoder/) | Why the canonical loader shape gets caught, and why obfuscation is not encryption | [Post](https://failclosed.com/2026-08-16-rc4-encryptor-base64-encoder/) |
-| [EICAR Control Validation Suite](projects/eicar-control-validation-suite/) | An IDS reporting a 100% block rate while passing every encrypted payload | [Post](https://failclosed.com/2026-08-16-eicar-control-validation-suite/) |
+| [Morse Code Packet Transceiver](morse-code-packet-transceiver/) | Data smuggled one symbol per packet through ICMP, TCP or UDP payloads | [Post](https://failclosed.com/2026-08-16-morse-code-packet-transceiver/) |
+| [RC4 Encryptor and Base64 Encoder](rc4-encryptor-base64-encoder/) | Why the canonical loader shape gets caught, and why obfuscation is not encryption | [Post](https://failclosed.com/2026-08-16-rc4-encryptor-base64-encoder/) |
+| [EICAR Control Validation Suite](eicar-control-validation-suite/) | An IDS reporting a 100% block rate while passing every encrypted payload | [Post](https://failclosed.com/2026-08-16-eicar-control-validation-suite/) |
 
 ---
 
