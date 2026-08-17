@@ -16,6 +16,7 @@ for defenders.
 | [Morse Code Packet Transceiver](morse-code-packet-transceiver/) | Data smuggled one symbol per packet through ICMP, TCP or UDP payloads | [Post](https://failclosed.com/2026-08-16-morse-code-packet-transceiver/) |
 | [RC4 Encryptor and Base64 Encoder](rc4-encryptor-base64-encoder/) | Why the canonical loader shape gets caught, and why obfuscation is not encryption | [Post](https://failclosed.com/2026-08-16-rc4-encryptor-base64-encoder/) |
 | [EICAR Control Validation Suite](eicar-control-validation-suite/) | An IDS reporting a 100% block rate while passing every encrypted payload | [Post](https://failclosed.com/2026-08-16-eicar-control-validation-suite/) |
+| [DNS Tunneling Transceiver](dns-tunneling-transceiver/) | A file smuggled out one DNS label at a time, and the cache miss that cannot hide it | [Post](https://failclosed.com/2026-08-17-dns-tunneling-transceiver/) |
 
 ---
 
@@ -35,12 +36,14 @@ Each project has a version of that same pair:
 | Morse transceiver | Content match on the sentinel bytes and ICMP identifier - all of them configurable | Single-byte ICMP echo payloads, arriving in volume, at regular intervals, with contents that vary |
 | RC4 encoder | Defender's `Cobacis` signature on the specific script | AMSI and script block logging, which see the deobfuscated body regardless of the wrapper |
 | EICAR suite | A signature for the EICAR string itself - which nothing that is actually trying will ever send you | The ratio of *not-inspected* to inspected traffic per egress path |
+| DNS transceiver | Content match on the fixed zone and `sot`/`eot` handshake tokens - all of them configurable | Unique-label cardinality per registered domain, from the resolver's own query log, since exfil cannot reuse a cached name |
 
 The pattern in the right-hand column is that the attacker cannot remove the thing
 being detected without giving up the thing they were trying to do. The Morse tool
 cannot stop sending one small unit per packet. The loader cannot stop reconstructing
-its body in memory. And no attacker can stop your sensor from admitting, in its own
-logs, that it could not see inside TLS.
+its body in memory. The DNS tunnel cannot stop asking a brand-new question for every
+chunk, because a cached answer moves no data. And no attacker can stop your sensor
+from admitting, in its own logs, that it could not see inside TLS.
 
 That last one is the odd one out and the most useful: it is a detection built on your
 own infrastructure's telemetry rather than on the adversary's artifacts, which means
@@ -50,7 +53,7 @@ there is nothing for them to change.
 
 ## What these are not
 
-Two of the three carry a Red Team label and are deliberately *not* offensive tools.
+Three of the four carry a Red Team label and are deliberately *not* offensive tools.
 
 The Morse transceiver is **not a covert channel** - it emits fixed sentinels, uses a
 hardcoded identifier, sends one packet per symbol on a metronome, and burns fifty
@@ -64,6 +67,10 @@ a retired cipher - it is documented as a cautionary example, not a recommendatio
 The EICAR suite uses a payload that **cannot do anything**. Sixty-eight printable
 ASCII characters with no execution and no persistence. It measures whether your
 controls are looking, not whether they are good.
+
+The DNS transceiver is **not a covert channel** either - fixed zone, hardcoded
+handshake, one small chunk per query, a metronome, and tens of thousands of queries to
+move a single file. Every choice was made so the resolver's own log would light up.
 
 Nothing here is intended to help anyone evade a control. The consistent goal is the
 opposite: make the technique loud enough to see clearly, then work out what actually
