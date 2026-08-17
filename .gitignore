@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# This is a STUB repository. It carries documentation and screenshots only.
+#
+# The patterns below are a guard rail, not housekeeping: they exist so that an
+# implementation cannot land here by accident. If you decide to publish a
+# project's source, remove the relevant pattern deliberately rather than
+# forcing past it with `git add -f`.
+# ---------------------------------------------------------------------------
+*.ps1
+*.psm1
+*.psd1
+*.py
+*.sh
+*.bat
+*.cmd
+*.c
+*.cpp
+*.cs
+*.go
+*.rs
+*.rb
+*.pl
+*.exe
+*.dll
+*.zip
+*.tar.gz
+*.7z
+
+# ---------------------------------------------------------------------------
+# Secrets and test output, in case a project folder ever gains working files
+# ---------------------------------------------------------------------------
+*.pem
+*.pfx
+*.key
+*.crt
+results/
+*.jsonl
+
+# ---------------------------------------------------------------------------
+# Editor / OS
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+__pycache__/

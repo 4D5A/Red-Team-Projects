@@ -1,0 +1,28 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 FailClosed
+
+The documentation, prose and screenshots in this repository are licensed under the
+Creative Commons Attribution 4.0 International License.
+
+You are free to share and adapt this material for any purpose, including
+commercially, provided you give appropriate credit, link to the license, and
+indicate if changes were made.
+
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+NO SOURCE CODE IS INCLUDED IN THIS REPOSITORY.
+
+This is a stub repository. It documents projects whose implementations are not
+published. Nothing in this license grants rights to any unpublished source, and no
+representation is made that such source will be released.
+
+Detection content -- signature rules, hunt logic and behavioural indicators -- is
+provided under the same terms and may be freely adapted into your own detection
+pipeline without attribution if you prefer.
+
+Third-party credits: the RC4 implementation discussed under
+projects/rc4-encryptor-base64-encoder is the work of Remko Weijnen, and the alphabet
+translation is the work of Doug Finke. Both are described here under fair use for
+commentary and analysis; neither is redistributed, and both remain the property of
+their respective authors.
