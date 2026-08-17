@@ -1,0 +1,18 @@
+# DNS Tunneling Transceiver - Suricata detection
+#
+# Level 1 (brittle, positive control). Matches the tool's fixed zone and handshake
+# tokens. Works exactly as shipped, and is close to worthless as a general detection:
+# every value below is configurable, so a signature keyed to the defaults only catches
+# an operator who did not change them. Keep it to confirm your pipeline fires, not for
+# coverage. The durable signal is in detections/hunt-cardinality.sql instead.
+
+alert dns any any -> any any (msg:"DNS Tunnel Transceiver handshake label (sot/eot)"; \
+  dns.query; content:"exfil"; nocase; pcre:"/\b(sot|eot)\b/i"; \
+  classtype:policy-violation; sid:1000020; rev:1;)
+
+# Optional: very long labels under a single zone. Still brittle (the zone is
+# configurable), but catches the data queries as well as the handshake. Tune dsize /
+# the zone to your environment.
+alert dns any any -> any any (msg:"DNS Tunnel Transceiver long label under lab zone"; \
+  dns.query; content:"exfil"; nocase; pcre:"/[a-z0-9]{40,}\.exfil\./i"; \
+  classtype:policy-violation; sid:1000021; rev:1;)

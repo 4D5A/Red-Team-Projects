@@ -59,6 +59,11 @@ a detection *should* catch, so you can find out whether yours does.
 
 ## Detection
 
+Both levels below ship as ready-to-use files in [`detections/`](detections/):
+
+- [`dns-tunnel.rules`](detections/dns-tunnel.rules) - the brittle Suricata content rule (positive control).
+- [`hunt-cardinality.sql`](detections/hunt-cardinality.sql) - the durable per-zone unique-label cardinality query.
+
 Two levels, and the gap between them is the reason this project exists.
 
 **The easy level is content matching.** The default prefix and handshake tokens are
