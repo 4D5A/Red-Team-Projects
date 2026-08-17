@@ -1,4 +1,4 @@
-﻿# RC4 Encryptor and Base64 Encoder
+# RC4 Encryptor and Base64 Encoder
 
 A small PowerShell project that RC4 encrypts a file, base64 encodes the result, and
 can optionally push the base64 through a swapped alphabet on the way out. Run it in
@@ -9,9 +9,8 @@ here as a Red Team piece for two reasons, and **neither of them is that you shou
 reach for it on an engagement.**
 
 > **Stub repository.** This repo documents the project. The source is not
-> published â€” see [Why the source isn't here](#why-the-source-isnt-here).
-
-ðŸ“– **Full write-up:** <https://failclosed.com/2026-08-16-rc4-encryptor-base64-encoder/>
+> published - see [Why the source isn't here](#why-the-source-isnt-here).
+**Full write-up:** <https://failclosed.com/2026-08-16-rc4-encryptor-base64-encoder/>
 
 ---
 
@@ -20,7 +19,7 @@ reach for it on an engagement.**
 **RC4 plus base64 plus PowerShell is the canonical shape of a loader.** A benign
 implementation makes a clean specimen for talking about why that shape gets caught.
 
-**It is a tidy example of the difference between obfuscation and encryption** â€” a
+**It is a tidy example of the difference between obfuscation and encryption** - a
 distinction that matters a great deal more on the offensive side than people new to
 it tend to assume.
 
@@ -91,7 +90,7 @@ It is **one** layer, and a weak one, wrapped in two layers of reversible encodin
 is a monoalphabetic substitution. There is no key. The substitution table sits in
 plaintext in the script anyway. It slows down a casual glance and nothing more.
 
-**Base64 is not encryption at all.** It is an encoding â€” reversible by definition and
+**Base64 is not encryption at all.** It is an encoding - reversible by definition and
 by design. Obvious when stated plainly, and one of the most commonly mislabelled
 things in the field.
 
@@ -99,12 +98,12 @@ things in the field.
 way.** Two problems compound:
 
 *The key is hardcoded.* Every copy encrypts with the string `pass code`, so the key
-is not secret from anyone who has the script â€” which is anyone you sent an encrypted
+is not secret from anyone who has the script - which is anyone you sent an encrypted
 file to.
 
 *The key is fixed with no IV or nonce*, so every file is encrypted under the
 identical keystream. RC4 is a stream cipher, and reusing a keystream across two
-messages is the many-time-pad failure â€” catastrophic rather than gradual. XOR two
+messages is the many-time-pad failure - catastrophic rather than gradual. XOR two
 ciphertexts together and the keystream cancels, leaving the XOR of the two
 plaintexts:
 
@@ -115,7 +114,7 @@ recovered P2                : RETREAT NOW!!!
 ```
 
 No key was needed to pull the second message out. That is not an implementation bug
-in this script specifically â€” it is what happens to any stream cipher used with a
+in this script specifically - it is what happens to any stream cipher used with a
 static key and no per-message randomness.
 
 RC4 on top of that is simply retired. It was prohibited in TLS by
@@ -138,7 +137,7 @@ the signature no longer matches.
 Antimalware Scan Interface at runtime, *after* any encoding or wrapping has been
 unwound in memory, and Defender's `Cobacis` family matches the RC4 loop structure
 there. That is why renaming the file or reshuffling the base64 alphabet would not
-help an attacker â€” AMSI sees the deobfuscated body, not the file on disk. Confirm
+help an attacker - AMSI sees the deobfuscated body, not the file on disk. Confirm
 AMSI is enabled and unbypassed on your endpoints, because a working AMSI bypass is
 what turns this from "blocked on sight" into "runs silently".
 
@@ -149,7 +148,7 @@ your SIEM. It survives obfuscation for the same reason AMSI does.
 **The behavioural shape is signature independent.** Hunt on what the technique
 structurally has to do:
 
-- byte array manipulation with a 256 element state array and modulo 256 arithmetic â€”
+- byte array manipulation with a 256 element state array and modulo 256 arithmetic -
   the fingerprint of RC4 or a similar hand-rolled cipher in a script
 - base64 encode or decode calls sitting next to XOR loops
 - reading a file, transforming it, and writing an encoded blob back to disk
@@ -176,7 +175,7 @@ project contributed was the analysis, and that is reproduced in full above.
 
 More to the point, the cryptography here provides **no meaningful confidentiality**,
 and a ready-to-run RC4-plus-base64 PowerShell loader is not a useful thing to hand
-out â€” as Defender's own verdict on it demonstrates.
+out - as Defender's own verdict on it demonstrates.
 
 ---
 

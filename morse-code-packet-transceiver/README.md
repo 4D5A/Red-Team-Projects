@@ -1,4 +1,4 @@
-﻿# Morse Code Packet Transceiver
+# Morse Code Packet Transceiver
 
 Sends a text message across a network one symbol at a time, with each dot, dash and
 separator travelling in its own ICMP echo request, TCP segment or UDP datagram.
@@ -9,9 +9,8 @@ It is a terrible way to move data and an excellent way to *look* at data moving.
 That is the entire point.
 
 > **Stub repository.** This repo documents the project. The source is not
-> published â€” see [Why the source isn't here](#why-the-source-isnt-here).
-
-ðŸ“– **Full write-up:** <https://failclosed.com/2026-08-16-morse-code-packet-transceiver/>
+> published - see [Why the source isn't here](#why-the-source-isnt-here).
+**Full write-up:** <https://failclosed.com/2026-08-16-morse-code-packet-transceiver/>
 
 ---
 
@@ -49,13 +48,13 @@ Four encodings change what actually goes on the wire, not just how the log rende
 | None | Plaintext | 1 |
 
 Morse is by far the loudest. A fourteen character message becomes 48 symbol packets
-plus three framing packets â€” roughly fifteen seconds of continuous traffic at the
+plus three framing packets - roughly fifteen seconds of continuous traffic at the
 default pacing to move fourteen characters.
 
 ![The same tool running the Pigpen cipher, showing geometric glyph units on the wire and a verified CRC32 checksum](screenshots/morse-transceiver-gui-pigpen-session.png)
 
 Both ends must agree on the cipher. There is no negotiation, so a mismatch produces
-nonsense and fails the checksum â€” a loud failure rather than a silent one.
+nonsense and fails the checksum - a loud failure rather than a silent one.
 
 ![A deliberate cipher mismatch between the transmit and receive sides, caught by the CRC32 check](screenshots/morse-transceiver-gui-checksum-mismatch.png)
 
@@ -109,7 +108,7 @@ only the person who did not change them.
 the traffic:
 
 - **Payload sizes.** Every symbol packet carries a single byte. A one-byte ICMP echo
-  payload is strange on any network â€” normal Windows ping carries 32 bytes of
+  payload is strange on any network - normal Windows ping carries 32 bytes of
   padding, Linux 56.
 - **Volume and regularity.** Dozens to hundreds of evenly spaced echo requests to a
   single destination is not what host-to-host ping traffic looks like.
@@ -139,7 +138,7 @@ change them without giving up the thing they were trying to do.
 This repository is a stub: description, screenshots and detection guidance, with no
 implementation.
 
-The detection material is the part with public value, and it is complete above â€” the
+The detection material is the part with public value, and it is complete above - the
 behavioural rule works against anything built along these lines, not just this tool.
 The implementation adds nothing a defender needs, and a working per-symbol
 exfiltration harness is not something worth handing out ready to run.

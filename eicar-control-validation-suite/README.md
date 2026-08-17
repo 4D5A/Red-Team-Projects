@@ -1,15 +1,14 @@
-﻿# EICAR Control Validation Suite
+# EICAR Control Validation Suite
 
-Prove your anti-malware controls are actually *looking* â€” not just installed.
+Prove your anti-malware controls are actually *looking* - not just installed.
 
 A modular suite that validates **network IDS/IPS, network AV and host-based AV**
 using the EICAR standard anti-malware test file, plus a working gateway simulation
 that shows how the same payload behaves under four different inspection postures.
 
 > **Stub repository.** This repo documents the project. The source is not
-> published â€” see [Why the source isn't here](#why-the-source-isnt-here).
-
-ðŸ“– **Full write-up:** <https://failclosed.com/2026-08-16-eicar-control-validation-suite/>
+> published - see [Why the source isn't here](#why-the-source-isnt-here).
+**Full write-up:** <https://failclosed.com/2026-08-16-eicar-control-validation-suite/>
 
 ---
 
@@ -27,7 +26,7 @@ that matters is how many payloads reached the endpoint.
 The middle row is the whole project.
 
 That sensor has a **100% block rate on everything it inspected.** Its dashboard is
-green. It also passed every single payload that arrived over TLS â€” which, in any
+green. It also passed every single payload that arrived over TLS - which, in any
 environment resembling the modern web, is all of them.
 
 This is not a broken sensor. It is a correctly functioning sensor pointed at the
@@ -37,7 +36,7 @@ success.
 ![IDS alert console showing critical BLOCK events for every cleartext request and informational NOT-INSPECTED events for every encrypted request carrying the same five files](screenshots/console-ids-no-tls.png)
 
 Look at the severity column. The blocks are `critical`. The misses are
-`informational` â€” exactly what gets filtered out of a SOC view, rolled into a daily
+`informational` - exactly what gets filtered out of a SOC view, rolled into a daily
 digest, or never alerted on at all.
 
 **The sensor is telling the truth about its own blindness, in the one severity class
@@ -91,10 +90,10 @@ Verdicts are recorded **per layer**, because collapsing them hides the finding:
 
 | Verdict | Layer | Meaning |
 |---|---|---|
-| `Blocked` | Network | A device stopped or substituted the transfer â€” good |
-| `Allowed` | Network | Delivered intact and hash verified â€” a gap |
-| `Quarantined` | Host | Removed, read denied, or convicted per AV telemetry â€” good |
-| `Persisted` | Host | Remained on disk and re-read byte for byte intact â€” a gap |
+| `Blocked` | Network | A device stopped or substituted the transfer - good |
+| `Allowed` | Network | Delivered intact and hash verified - a gap |
+| `Quarantined` | Host | Removed, read denied, or convicted per AV telemetry - good |
+| `Persisted` | Host | Remained on disk and re-read byte for byte intact - a gap |
 
 The case worth escalating is anything that is both `Allowed` **and** `Persisted`.
 
@@ -114,7 +113,7 @@ only way to know which you have is to send it.
 rather than simulation. Against Microsoft Defender on one Windows 10 host:
 
 - The raw 68-byte file was convicted in roughly **two seconds** under every extension
-  tested â€” `.com`, `.txt`, `.exe`, `.dll`, `.js`. Detection is content based, so
+  tested - `.com`, `.txt`, `.exe`, `.dll`, `.js`. Detection is content based, so
   **renaming a file buys an attacker nothing.**
 - The same payload inside a ZIP sat on disk untouched **past twenty seconds** with no
   detection telemetry at all.
@@ -122,7 +121,7 @@ rather than simulation. Against Microsoft Defender on one Windows 10 host:
   on-demand scan convicted everything.
 
 Archive members are inspected **on access and on demand, not on write.** That is not
-a bug â€” deep scanning every container on write is expensive and most products trade
+a bug - deep scanning every container on write is expensive and most products trade
 it away deliberately. The residual risk is **dwell time and propagation**, not
 execution: a malicious archive can sit on a file share, replicate into a backup set,
 and sync onward for as long as nobody opens it.
@@ -160,7 +159,7 @@ count of NOT-INSPECTED events / count of inspected events, per egress path, over
 That number is the one thing here that generalises. It does not care about EICAR or
 any particular malware family, and **it cannot be evaded by an attacker**, because it
 measures your own sensor's admission that it could not see. If it is climbing, or if
-it dwarfs your inspected volume, that ratio *is* the finding â€” and no block-rate
+it dwarfs your inspected volume, that ratio *is* the finding - and no block-rate
 metric computed over inspected traffic will ever surface it.
 
 A block rate measured only over the traffic you inspected is a measure of your
@@ -174,7 +173,7 @@ This repository is a stub: description, screenshots and detection guidance, with
 implementation.
 
 The detection material is the part with public value and it is complete above. The
-coverage-ratio metric is the durable finding, and it requires none of this code â€”
+coverage-ratio metric is the durable finding, and it requires none of this code -
 it comes from telemetry you already have.
 
 The suite itself writes the EICAR string to disk and pushes it across networks by
@@ -196,7 +195,7 @@ executed regardless of whether its directory entry has been unlinked yet.
 ## A note on the simulation
 
 The gateway shown in these screenshots is a **simulation**. It genuinely scans
-response bodies, recurses into ZIP containers, blocks, and writes alerts â€” the
+response bodies, recurses into ZIP containers, blocks, and writes alerts - the
 inspection is real and the screenshots are live renders of it running.
 
 It is **not** a commercial security product, does not imitate one, and its appliance
@@ -218,7 +217,7 @@ penetration testing and security assessment.
 
 EICAR is harmless but it is **not quiet.** It will light up your AV console, your
 SIEM, and somebody's on-call queue. Tell the monitoring team first, unless a blind
-detection test is the actual objective â€” in which case tell whoever authorized it, so
+detection test is the actual objective - in which case tell whoever authorized it, so
 the alerts are attributable to you.
 
 Test output is sensitive: reports contain hostnames, agent versions, signature

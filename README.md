@@ -32,9 +32,9 @@ Each project has a version of that same pair:
 
 | Project | The brittle detection | The durable one |
 |---|---|---|
-| Morse transceiver | Content match on the sentinel bytes and ICMP identifier — all of them configurable | Single-byte ICMP echo payloads, arriving in volume, at regular intervals, with contents that vary |
+| Morse transceiver | Content match on the sentinel bytes and ICMP identifier - all of them configurable | Single-byte ICMP echo payloads, arriving in volume, at regular intervals, with contents that vary |
 | RC4 encoder | Defender's `Cobacis` signature on the specific script | AMSI and script block logging, which see the deobfuscated body regardless of the wrapper |
-| EICAR suite | A signature for the EICAR string itself — which nothing that is actually trying will ever send you | The ratio of *not-inspected* to inspected traffic per egress path |
+| EICAR suite | A signature for the EICAR string itself - which nothing that is actually trying will ever send you | The ratio of *not-inspected* to inspected traffic per egress path |
 
 The pattern in the right-hand column is that the attacker cannot remove the thing
 being detected without giving up the thing they were trying to do. The Morse tool
@@ -52,14 +52,14 @@ there is nothing for them to change.
 
 Two of the three carry a Red Team label and are deliberately *not* offensive tools.
 
-The Morse transceiver is **not a covert channel** — it emits fixed sentinels, uses a
+The Morse transceiver is **not a covert channel** - it emits fixed sentinels, uses a
 hardcoded identifier, sends one packet per symbol on a metronome, and burns fifty
 packets on a short sentence. Every one of those choices was made for visibility. It
 is a generator for traffic a detection *should* catch, so you can find out whether
 yours does.
 
 The RC4 encoder provides **no meaningful confidentiality**. Hardcoded key, no IV, and
-a retired cipher — it is documented as a cautionary example, not a recommendation.
+a retired cipher - it is documented as a cautionary example, not a recommendation.
 
 The EICAR suite uses a payload that **cannot do anything**. Sixty-eight printable
 ASCII characters with no execution and no persistence. It measures whether your
@@ -74,7 +74,7 @@ catches it.
 ## Why there's no source
 
 The detection material is the part with public value, and it is complete in each
-project's README — signature rules where they help, behavioural indicators where they
+project's README - signature rules where they help, behavioural indicators where they
 matter more, and an honest account of which is which.
 
 The implementations add little a defender needs. A working per-symbol exfiltration
@@ -107,5 +107,5 @@ Documentation and screenshots are released under
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). No source code is included
 or licensed.
 
-Detection content — signature rules, hunt logic and behavioural indicators — may be
+Detection content - signature rules, hunt logic and behavioural indicators - may be
 freely adapted into your own detection pipeline without attribution if you prefer.
