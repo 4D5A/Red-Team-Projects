@@ -1,0 +1,74 @@
+##############################################################################
+# Morse Code Packet Transceiver (Symbol-Per-Packet Covert Channel) -
+# Suricata/Security Onion
+#
+# Target activity: a Python tool that encodes a text message symbol-by-
+# symbol (Morse, Pigpen, Atbash, or plaintext) and transmits each symbol
+# as its own single-byte ICMP echo request, TCP segment, or UDP datagram.
+# Framing uses literal sentinel byte sequences:
+#   SOT : |FE FE| "MORSE:SOT" |FE FE|   (13 bytes)
+#   EOT : |FE FE| "MORSE:EOT" |FE FE|   (13 bytes)
+#   CHK : |FE FE| "MORSE:CHK:" + CRC32  (checksum frame)
+# Defaults observed: TCP/UDP port 9999, ICMP identifier 0xBEEF (48879),
+# one byte of payload per symbol packet, dozens to hundreds of evenly
+# spaced packets per message.
+#
+# This is one of the more wire-distinctive tools in this series - the
+# literal sentinel strings and fixed ICMP identifier are strong, specific
+# indicators as long as the operator hasn't customized them, and the
+# "many single-byte packets" shape is a reasonable generic fallback for
+# when they have.
+#
+# SID range: 1000700-1000799 (local convention, 1,000,000+).
+##############################################################################
+
+# ---------------------------------------------------------------------------
+# Literal sentinel matches - HIGH confidence for default configuration,
+# across all three transports the tool supports.
+# ---------------------------------------------------------------------------
+alert icmp any any -> any any (msg:"REDTEAM - Morse Code Packet Transceiver SOT Sentinel Over ICMP"; content:"|FE FE|MORSE:SOT|FE FE|"; classtype:trojan-activity; sid:1000701; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert icmp any any -> any any (msg:"REDTEAM - Morse Code Packet Transceiver EOT Sentinel Over ICMP"; content:"|FE FE|MORSE:EOT|FE FE|"; classtype:trojan-activity; sid:1000702; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert icmp any any -> any any (msg:"REDTEAM - Morse Code Packet Transceiver Default ICMP Identifier (0xBEEF) With Single-Byte Payload"; icmp_id:48879; dsize:1; classtype:trojan-activity; sid:1000703; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert tcp any any <> any 9999 (msg:"REDTEAM - Morse Code Packet Transceiver SOT Sentinel Over TCP/9999"; content:"|FE FE|MORSE:SOT|FE FE|"; classtype:trojan-activity; sid:1000704; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert tcp any any <> any 9999 (msg:"REDTEAM - Morse Code Packet Transceiver EOT Sentinel Over TCP/9999"; content:"|FE FE|MORSE:EOT|FE FE|"; classtype:trojan-activity; sid:1000705; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert tcp any any <> any 9999 (msg:"REDTEAM - Morse Code Packet Transceiver Checksum Frame (MORSE:CHK:) Over TCP/9999"; content:"|FE FE|MORSE:CHK:"; classtype:trojan-activity; sid:1000706; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert udp any any <> any 9999 (msg:"REDTEAM - Morse Code Packet Transceiver SOT Sentinel Over UDP/9999"; content:"|FE FE|MORSE:SOT|FE FE|"; classtype:trojan-activity; sid:1000707; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert udp any any <> any 9999 (msg:"REDTEAM - Morse Code Packet Transceiver EOT Sentinel Over UDP/9999"; content:"|FE FE|MORSE:EOT|FE FE|"; classtype:trojan-activity; sid:1000708; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert udp any any <> any 9999 (msg:"REDTEAM - Morse Code Packet Transceiver Checksum Frame (MORSE:CHK:) Over UDP/9999"; content:"|FE FE|MORSE:CHK:"; classtype:trojan-activity; sid:1000709; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+# Default port used even without the sentinel bytes present in a given
+# packet (e.g. mid-stream capture, or a custom encoding that skips
+# framing) - single-byte payloads on the tool's default port at any
+# volume are already an unusual pattern worth a low-severity flag.
+alert tcp any any <> any 9999 (msg:"REDTEAM - Single-Byte Payload On Morse Code Packet Transceiver Default Port (TCP/9999)"; dsize:1; classtype:bad-unknown; sid:1000710; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+alert udp any any <> any 9999 (msg:"REDTEAM - Single-Byte Payload On Morse Code Packet Transceiver Default Port (UDP/9999)"; dsize:1; classtype:bad-unknown; sid:1000711; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool MorseCodePacketTransceiver;)
+
+# ---------------------------------------------------------------------------
+# Generic, port/tool-agnostic fallback: a burst of single-byte ICMP echo
+# requests from one host is not normal ping behavior (default ping
+# payloads are 32-64+ bytes) regardless of ICMP identifier, and catches
+# any operator who changed the default 0xBEEF id. Volume-gated to avoid
+# flagging the occasional one-off tiny ping.
+# ---------------------------------------------------------------------------
+alert icmp $HOME_NET any -> any any (msg:"REDTEAM - Burst Of Single-Byte ICMP Echo Requests (Possible Symbol-Per-Packet Covert Channel)"; itype:8; dsize:1; threshold: type threshold, track by_src, count 20, seconds 10; classtype:bad-unknown; sid:1000712; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18;)
+
+##############################################################################
+# Tuning notes:
+#  - SIDs 1000710/1000711/1000712 are volume/shape heuristics, not
+#    signature matches, and will need baselining - some legitimate
+#    embedded/IoT telemetry and certain game/voice protocols also send
+#    small fixed-size UDP datagrams at regular intervals.
+#  - The `<> any 9999` bidirectional port match covers both directions
+#    (initiator and responder) without doubling the rule count; narrow to
+#    $HOME_NET on one side if you only care about traffic originating
+#    from or destined to your monitored network.
+##############################################################################

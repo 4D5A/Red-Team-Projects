@@ -1,0 +1,63 @@
+##############################################################################
+# RC4 + Base64 PowerShell Stager/Loader Pattern - Suricata/Security Onion
+#
+# Target activity: a PowerShell tool that RC4-encrypts a file with a
+# hardcoded key, Base64-encodes the ciphertext, and optionally remaps the
+# Base64 alphabet. The author explicitly frames it as demonstrating "the
+# canonical shape of a loader/stager" used in red team tradecraft.
+#
+# IMPORTANT SCOPE NOTE: this tool's own writeup is about file-to-file
+# transformation on disk - it does not itself define a network protocol.
+# The best real detections for it are HOST-based (AMSI, PowerShell Script
+# Block Logging / Event ID 4104, and Sigma rules matching the RC4 KSA loop
+# / 256-element state array / base64-near-XOR-loop structure the article
+# describes) - those belong in Security Onion's Sigma/EDR pipeline, not
+# a Suricata .rules file, and are NOT duplicated here.
+#
+# What IS legitimately network-visible is the delivery/staging step: this
+# loader shape is normally fetched or dropped over HTTP(S) as either (a)
+# the PowerShell source itself, or (b) the resulting RC4+Base64 blob being
+# pulled down as stage 2. Both are covered below. Treat this file as a
+# thin, low-confidence complement to the LOLBin/PowerShell rules you
+# already have - not a substitute for host-side detection of this
+# specific technique.
+#
+# SID range: 1000600-1000699 (local convention, 1,000,000+).
+##############################################################################
+
+# ---------------------------------------------------------------------------
+# Detect the loader's own PowerShell SOURCE being staged/downloaded over
+# HTTP. Keys on the combination of the hardcoded key literal the article
+# calls out ("pass code") together with an RC4-shaped 256-element
+# key-scheduling loop - reduces false positives vs. either string alone.
+# High value against out-of-the-box, unmodified copies of this specific
+# script; trivially defeated by renaming the key or the variable names.
+# ---------------------------------------------------------------------------
+# Note: a generic "client requested a .ps1 file" rule already lives in
+# web-hosted-shell-traffic.rules (SID 1000408) - not duplicated here.
+alert http any any -> $HOME_NET any (msg:"REDTEAM - PowerShell RC4/Base64 Loader Source Served Over HTTP (Hardcoded 'pass code' Key)"; flow:established,to_client; file_data; content:"pass code"; nocase; content:"256"; distance:0; classtype:trojan-activity; sid:1000601; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool RC4Base64Loader;)
+
+# ---------------------------------------------------------------------------
+# Stage-2 delivery: the RC4+Base64 output blob itself. This is
+# unavoidably a weak, generic heuristic - a large, unbroken run of
+# standard Base64 characters with no recognizable file magic bytes is
+# consistent with an encrypted/encoded stager, but is also consistent
+# with a great deal of entirely legitimate web content (fonts, inline
+# images, JS source maps, JWTs, etc.). Treat as low-confidence hunting
+# only; pair with PowerShell UA context from your LOLBin ruleset to cut
+# noise, and expect to tune the run-length threshold per environment.
+# ---------------------------------------------------------------------------
+alert http any any -> $HOME_NET any (msg:"REDTEAM - Large Contiguous Base64 Blob In HTTP Response To PowerShell Client (Possible Encoded Stager)"; flow:established,to_client; http.user_agent; content:"PowerShell"; file_data; pcre:"/^[A-Za-z0-9+\/]{500,}={0,2}/"; classtype:trojan-activity; sid:1000602; rev:1; metadata:created_at 2026_08_18, updated_at 2026_08_18, tool RC4Base64Loader;)
+
+##############################################################################
+# Tuning notes:
+#  - This technique is fundamentally a host/scripting-level pattern. If
+#    you only deploy the rules in this file you will miss most real-world
+#    use of this loader shape - pair with AMSI, Script Block Logging
+#    (Event ID 4104), and a Sigma rule for the RC4 KSA/PRGA + base64
+#    structure the article describes.
+#  - SID 1000602 is intentionally conservative (500+ contiguous base64
+#    chars) but will still need allow-listing against known chatty
+#    internal PowerShell automation (e.g. artifact upload scripts) before
+#    running in anything but hunting mode.
+##############################################################################
